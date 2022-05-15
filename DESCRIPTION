@@ -1,12 +1,15 @@
 Package: privateKDE
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Privacy Preserving Nearest Neighbour Kernel Resampling for Map Data 
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Mat Weldon
+Maintainer: Mat Weldon <dr.mat.weldon@gmail.com>
+Description: The package provides functions that resample x,y points
+     in a way that provides privacy guarantees. A kernel density is
+     constructed such that points in sparse regions have a larger bandwidth
+     and points in denser regions have a smaller bandwidth. This guarantees
+     that kernels overlap with high probability. 
+License: GPL-2
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2
