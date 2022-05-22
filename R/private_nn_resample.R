@@ -11,32 +11,36 @@
 #' @param K the number of nearest neighbours each kernel must overlap with
 #'        default 5.
 #' @param size the number of points to sample. Default \code{nrow(x)}
+#' @param resample the points with replacement? Default TRUE
 #'
-#' @return a two-column matrix of resampled points
+#' @return a two-column matrix of resampled points with attributes
+#'         "id", "K" and "bandwidth"
 #'
 #' @export
-private_nn_resample = function(coords,id=NULL,K=5,size=nrow(x)){
+private_nn_resample = function(coords,id=NULL,K=5,size=nrow(x)
+                               ,resample=TRUE){
 
-  bandwidths = numeric(NA,nrow(coords))
-
-  ### Calculate pairwise distances
+    ### Calculate pairwise distances
   dists = pw.dists(coords)
 
   ### Same id indicator matrix for masking
   same_id = sapply(id,function(i){i==id})
 
-  ### Get K'th nearest neighbour in same id
-  nn = sapply(1:nrow(dists),function(x){
+  ### Get distance to K'th nearest neighbour in same id
+  bandwidths = sapply(1:nrow(dists),function(x){
     y <- dists[x,same_id[x,]]
     return(y[order(y)][K])
   })
 
-  ### Resample with replacement
-  resamp <- sample(1:nrow(coords),replace=T,size=size)
+  if(resample){
+    ### Resample with replacement
+    resamp = sample(1:nrow(coords),replace=T,size=size)
 
-  nn_new <- nn[resamp]
+    bandwidths = bandwidths[resamp]
+    id = id[resamp]
+    coords = coords[resamp,]
+  }
 
-  coords_new <- coords[resamp,]
 
   ### -------------------------------------------------------------
   ### --        Sample from uniform disc
@@ -47,7 +51,7 @@ private_nn_resample = function(coords,id=NULL,K=5,size=nrow(x)){
 
   ### Sample using polar coords with radius=dist(K)+eps
   ### Use adjusted sample R*sqrt(runif(1))
-  r <- sapply(nn_new,function(x){ x*sqrt(runif(1)) })
+  r <- sapply(bandwidths,function(x){ x*sqrt(runif(1)) })
   angle <- runif(size,0,2*pi)
 
   ### Transform to cartesian and add to resampled dataframe
@@ -56,9 +60,12 @@ private_nn_resample = function(coords,id=NULL,K=5,size=nrow(x)){
 
   res = matrix(NA,size,2)
   ### Add sampled noise to location
-  res[,1] = coords_new[,1] + xjitter
-  res[,2] = coords_new[,2] + yjitter
+  res[,1] = coords[,1] + xjitter
+  res[,2] = coords[,2] + yjitter
 
+  attr(res,"bandwidth") = bandwidths
+  attr(res,"K") = K
+  attr(res,"id") = id
   return(res)
 }
 
