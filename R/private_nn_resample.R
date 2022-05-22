@@ -64,15 +64,6 @@ private_nn_resample = function(coords,id=NULL,K=5,size=nrow(x)){
 
 
 
-
-
-
-
-
-
-
-
-
 # Hello, world!
 #
 # This is an example function named 'hello'
